@@ -22,6 +22,7 @@ from logger import TermLogger, AverageMeter
 # from tensorboardX import SummaryWriter
 import wandb
 import os
+import warnings
 
 
 parser = argparse.ArgumentParser(description='Structure from Motion Learner training on KITTI and CityScapes Dataset',
@@ -65,11 +66,17 @@ parser.add_argument('--with-gt', action='store_true', help='use ground truth for
 
 # !DL project changes!
 parser.add_argument('--with-coord-conv', type=int, default=0, help='change first Conv2d layer to CoordConv')
-parser.add_argument('--conv1-weight-mode', type=str, choices=['zeros', 'random', 'all_random'], default='random', help='how to initailize weights for conv1')
-parser.add_argument('--fine-tune-mode', type=str, choices=['whole', 'first_then_all', 'successive_train'], default='whole', help='how to perform training with CoordConv')
-parser.add_argument('--unfreeze-epoch', type=int, default=None,
-                    help='if fine_tune_mode=first_then_all, from this epoch all the layers are unfrozen;\
-                          if fine_tune_mode=successive_train, every unfreeze_epoch unfreeze one layer')
+parser.add_argument('--conv1-weight-mode', type=str, choices=['zeros', 'random', 'all_random'], default=None, help='how to initailize weights for conv1')
+parser.add_argument('--fine-tune-mode', type=str, choices=['whole', 'first_then_all'], default=None, help='how to perform fine-tunning with CoordConv')
+parser.add_argument('--unfreeze-epoch', type=int, default=None, help='if the fine_tune_mode=first_then_all, start with unfreeze_epoch all the layers are unfrozen')
+
+parser.add_argument('--use-scheduler', type=int, default=0, help='intrudce shceduler for fine-tuning')
+parser.add_argument('--warmup-lr', type=float, default=None, help='start value of lr for warm up')
+parser.add_argument('--warmup-epoch', type=int, default=None, help='at epoch warm_up_epoch lr equals specified lr of optimizer')
+parser.add_argument('--step-size', type=int, default=None, help='each step_size lr decays by gamma')
+parser.add_argument('--gamma-lr', type=float, default=None, help='multiplicative factor of learning rate decay')
+parser.add_argument('--min-lr', type=float, default=None, help='the smallest value of lr with scheduler')
+
 parser.add_argument('--run-id', type=str, default=None, help='wanb run description')
 
 
@@ -247,22 +254,28 @@ def main():
             # 4. Freeze parts of PoseResNet (also done during training)
             if args.fine_tune_mode == 'whole':
                 pass
-            elif (args.fine_tune_mode == 'first_then_all') | (args.fine_tune_mode == 'successive_train'):
+            elif args.fine_tune_mode == 'first_then_all':
                 for param in pose_net.parameters():
                     param.requires_grad = False
-                pose_net.encoder.conv1.weight.requires_grad = True
+                pose_net.encoder.encoder.conv1.weight.requires_grad = True
 
         disp_net = torch.nn.DataParallel(disp_net)
         pose_net = torch.nn.DataParallel(pose_net)
 
-        print('=> setting adam solver (for PoseResNet only)')
+        print('=> setting adam solver for PoseResNet only')
         optim_params = [
             {'params': pose_net.parameters(), 'lr': args.lr}
         ]
         optimizer = torch.optim.Adam(optim_params,
                                     betas=(args.momentum, args.beta),
                                     weight_decay=args.weight_decay)
-
+        if args.use_scheduler:
+            print('=> using lr scheduler StepLRWithWarmup')
+            scheduler = StepLRWithWarmup(
+                optimizer, step_size=args.step_size, gamma=args.gamma_lr, 
+                warmup_epochs=args.warmup_epoch, warmup_lr_init=args.warmup_lr,
+                min_lr=args.min_lr
+            )
 #     with open(args.save_path/args.log_summary, 'w') as csvfile:
 #         writer = csv.writer(csvfile, delimiter='\t')
 #         writer.writerow(['train_loss', 'validation_loss'])
@@ -278,13 +291,13 @@ def main():
         logger.epoch_bar.update(epoch)
 
         # Unfreeze layers if it is the mode
-        if (args.fine_tune_mode == 'first_then_all') & (args.fine_tune_mode == args.unfreeze_epoch):
+        if (args.fine_tune_mode == 'first_then_all') & (epoch == args.unfreeze_epoch):
             for param in pose_net.parameters():
                 param.requires_grad = True
 
         # train for one epoch
         logger.reset_train_bar()
-        train_loss = train(args, train_loader, disp_net, pose_net, optimizer, args.epoch_size, logger, training_writer)
+        train_loss = train(args, train_loader, disp_net, pose_net, optimizer, scheduler, args.epoch_size, logger, training_writer)
         logger.train_writer.write(' * Avg Loss : {:.3f}'.format(train_loss))
 
         # evaluate on validation set
@@ -325,7 +338,7 @@ def main():
     logger.epoch_bar.finish()
 
 
-def train(args, train_loader, disp_net, pose_net, optimizer, epoch_size, logger, train_writer):
+def train(args, train_loader, disp_net, pose_net, optimizer, scheduler, epoch_size, logger, train_writer):
     global n_iter, device
     batch_time = AverageMeter()
     data_time = AverageMeter()
@@ -376,6 +389,8 @@ def train(args, train_loader, disp_net, pose_net, optimizer, epoch_size, logger,
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        # !DL project changes!
+        scheduler.step()
 
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -518,6 +533,41 @@ def validate_with_gt(args, val_loader, disp_net, epoch, logger):#, output_writer
             logger.valid_writer.write('valid: Time {} Abs Error {:.4f} ({:.4f})'.format(batch_time, errors.val[0], errors.avg[0]))
     logger.valid_bar.update(len(val_loader))
     return errors.avg, error_names
+
+class StepLRWithWarmup(torch.optim.lr_scheduler._LRScheduler):
+    def __init__(self, optimizer, step_size, gamma=0.1, warmup_epochs=50, warmup_lr_init=1e-5,
+                 min_lr=1e-5,
+                 last_epoch=-1, verbose=False):
+        self.step_size = step_size
+        self.gamma = gamma
+        self.warmup_epochs = warmup_epochs
+        self.warmup_lr_init = warmup_lr_init
+        self.min_lr = min_lr
+
+        super().__init__(optimizer, last_epoch, verbose)
+
+    def get_lr(self):
+        if not self._get_lr_called_within_step:
+            warnings.warn("To get the last learning rate computed by the scheduler, "
+                          "please use `get_last_lr()`.", UserWarning)
+
+        warmup_incr = (self.base_lrs[0] - self.warmup_lr_init) / self.warmup_epochs
+        if (self.last_epoch == 0):
+            return [self.warmup_lr_init for _ in self.optimizer.param_groups]
+        
+        while (self.last_epoch > 0) & (self.last_epoch < self.warmup_epochs):
+            return [self.warmup_lr_init + self.last_epoch * warmup_incr for _ in self.optimizer.param_groups]
+        
+        if self.last_epoch == self.warmup_epochs:
+            return [self.base_lrs for _ in self.optimizer.param_groups][0]
+
+        if (self.last_epoch > self.warmup_epochs) & ((self.last_epoch - self.warmup_epochs) % self.step_size != 0):
+            return [group['lr'] for group in self.optimizer.param_groups]
+
+        if [group['lr'] * self.gamma for group in self.optimizer.param_groups][0] < self.min_lr:
+            return [self.min_lr for group in self.optimizer.param_groups]
+
+        return [group['lr'] * self.gamma for group in self.optimizer.param_groups]
 
 
 def compute_depth(disp_net, tgt_img, ref_imgs):
