@@ -19,10 +19,10 @@ python3 ../train.py $TRAIN_SET \
 --fine-tune-mode first_then_all \
 --unfreeze-epoch 35 \
 --use-scheduler 0 \
+--run-id $1
 # --warmup-lr 1e-5 \
 # --warmup-epoch 70 \
 # --step-size 10 \
 # --gamma-lr .1 \
 # --min-lr 1e-5 \
---run-id $1 \
 # --print-freq 10

@@ -91,8 +91,8 @@ def main():
     args = parser.parse_args()
 
     timestamp = datetime.datetime.now().strftime("%m-%d-%H:%M")
-    save_path = Path(args.name)
-    args.save_path = 'checkpoints_'/save_path/timestamp
+    save_path = Path(f'checkpoints_/{args.name}/{timestamp}')
+    args.save_path = save_path
     print('=> will save everything to {}'.format(args.save_path))
     args.save_path.makedirs_p()
 
