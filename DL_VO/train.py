@@ -19,7 +19,9 @@ from datasets.sequence_folders import SequenceFolder
 from datasets.pair_folders import PairFolder
 from loss_functions import compute_smooth_loss, compute_photo_and_geometry_loss, compute_errors
 from logger import TermLogger, AverageMeter
-from tensorboardX import SummaryWriter
+# from tensorboardX import SummaryWriter
+import wandb
+import os
 
 
 parser = argparse.ArgumentParser(description='Structure from Motion Learner training on KITTI and CityScapes Dataset',
@@ -68,6 +70,7 @@ parser.add_argument('--fine-tune-mode', type=str, choices=['whole', 'first_then_
 parser.add_argument('--unfreeze-epoch', type=int, default=None,
                     help='if fine_tune_mode=first_then_all, from this epoch all the layers are unfrozen;\
                           if fine_tune_mode=successive_train, every unfreeze_epoch unfreeze one layer')
+parser.add_argument('--run-id', type=str, default=None, help='wanb run description')
 
 
 best_error = -1
@@ -91,11 +94,20 @@ def main():
     cudnn.deterministic = True
     cudnn.benchmark = True
 
-    training_writer = SummaryWriter(args.save_path)
-    output_writers = []
-    if args.log_output:
-        for i in range(3):
-            output_writers.append(SummaryWriter(args.save_path/'valid'/str(i)))
+    wandb.init(project='vo_exploring', name=args.run_id)
+
+    # define a metric we are interested in the minimum of
+    wandb.define_metric('train/photometric_error', summary='min')
+    wandb.define_metric('train/disparity_smoothness_loss', summary='min')
+    wandb.define_metric('train/geometry_consistency_loss', summary='min')
+    wandb.define_metric('train/total_loss', summary='min')
+
+    wandb.define_metric('val/photometric_error', summary='min')
+    wandb.define_metric('val/disparity_smoothness_loss', summary='min')
+    wandb.define_metric('val/geometry_consistency_loss', summary='min')
+    wandb.define_metric('val/total_loss', summary='min')
+
+    training_writer = {}
 
     # Data loading code
     normalize = custom_transforms.Normalize(mean=[0.45, 0.45, 0.45],
@@ -251,17 +263,15 @@ def main():
                                     betas=(args.momentum, args.beta),
                                     weight_decay=args.weight_decay)
 
-    with open(args.save_path/args.log_summary, 'w') as csvfile:
-        writer = csv.writer(csvfile, delimiter='\t')
-        writer.writerow(['train_loss', 'validation_loss'])
+#     with open(args.save_path/args.log_summary, 'w') as csvfile:
+#         writer = csv.writer(csvfile, delimiter='\t')
+#         writer.writerow(['train_loss', 'validation_loss'])
 
-    with open(args.save_path/args.log_full, 'w') as csvfile:
-        writer = csv.writer(csvfile, delimiter='\t')
-        writer.writerow(['train_loss', 'photo_loss', 'smooth_loss', 'geometry_consistency_loss'])
+#     with open(args.save_path/args.log_full, 'w') as csvfile:
+#         writer = csv.writer(csvfile, delimiter='\t')
+#         writer.writerow(['train_loss', 'photo_loss', 'smooth_loss', 'geometry_consistency_loss'])
 
-
-
-    logger = TermLogger(n_epochs=args.epochs, train_size=min(len(train_loader), args.epoch_size), valid_size=len(val_loader))
+    logger = TermLogger(args.epochs, min(len(train_loader), args.epoch_size), len(val_loader))
     logger.epoch_bar.start()
 
     for epoch in range(args.epochs):
@@ -280,14 +290,16 @@ def main():
         # evaluate on validation set
         logger.reset_valid_bar()
         if args.with_gt:
-            errors, error_names = validate_with_gt(args, val_loader, disp_net, epoch, logger, output_writers)
+            errors, error_names = validate_with_gt(args, val_loader, disp_net, epoch, logger)#, output_writers)
         else:
-            errors, error_names = validate_without_gt(args, val_loader, disp_net, pose_net, epoch, logger, output_writers)
+            errors, error_names = validate_without_gt(args, val_loader, disp_net, pose_net, epoch, logger)#, output_writers)
         error_string = ', '.join('{} : {:.3f}'.format(name, error) for name, error in zip(error_names, errors))
         logger.valid_writer.write(' * Avg {}'.format(error_string))
 
         for error, name in zip(errors, error_names):
-            training_writer.add_scalar(name, error, epoch)
+            training_writer[name] = error
+            
+        wandb.log(train_writer)
 
         # Up to you to chose the most relevant error to measure your model's performance, careful some measures are to maximize (such as a1,a2,a3)
         decisive_error = errors[1]
@@ -307,9 +319,9 @@ def main():
             },
             is_best)
 
-        with open(args.save_path/args.log_summary, 'a') as csvfile:
-            writer = csv.writer(csvfile, delimiter='\t')
-            writer.writerow([train_loss, decisive_error])
+#         with open(args.save_path/args.log_summary, 'a') as csvfile:
+#             writer = csv.writer(csvfile, delimiter='\t')
+#             writer.writerow([train_loss, decisive_error])
     logger.epoch_bar.finish()
 
 
@@ -349,10 +361,13 @@ def train(args, train_loader, disp_net, pose_net, optimizer, epoch_size, logger,
         loss = w1*loss_1 + w2*loss_2 + w3*loss_3
 
         if log_losses:
-            train_writer.add_scalar('photometric_error', loss_1.item(), n_iter)
-            train_writer.add_scalar('disparity_smoothness_loss', loss_2.item(), n_iter)
-            train_writer.add_scalar('geometry_consistency_loss', loss_3.item(), n_iter)
-            train_writer.add_scalar('total_loss', loss.item(), n_iter)
+            
+            train_writer['train/photometric_error'] = loss_1.item()
+            train_writer['train/disparity_smoothness_loss'] = loss_2.item()
+            train_writer['train/geometry_consistency_loss'] = loss_3.item()
+            train_writer['train/total_loss'] = loss.item()
+            
+            wandb.log(train_writer)
 
         # record loss and EPE
         losses.update(loss.item(), args.batch_size)
@@ -366,12 +381,12 @@ def train(args, train_loader, disp_net, pose_net, optimizer, epoch_size, logger,
         batch_time.update(time.time() - end)
         end = time.time()
 
-        with open(args.save_path/args.log_full, 'a') as csvfile:
-            writer = csv.writer(csvfile, delimiter='\t')
-            writer.writerow([loss.item(), loss_1.item(), loss_2.item(), loss_3.item()])
+#         with open(args.save_path/args.log_full, 'a') as csvfile:
+#             writer = csv.writer(csvfile, delimiter='\t')
+#             writer.writerow([loss.item(), loss_1.item(), loss_2.item(), loss_3.item()])
         logger.train_bar.update(i+1)
-        if i % args.print_freq == 0:
-            logger.train_writer.write('Train: Time {} Data {} Loss {}'.format(batch_time, data_time, losses))
+#         if i % args.print_freq == 0:
+#             logger.train_writer.write('Train: Time {} Data {} Loss {}'.format(batch_time, data_time, losses))
         if i >= epoch_size - 1:
             break
 
@@ -381,11 +396,11 @@ def train(args, train_loader, disp_net, pose_net, optimizer, epoch_size, logger,
 
 
 @torch.no_grad()
-def validate_without_gt(args, val_loader, disp_net, pose_net, epoch, logger, output_writers=[]):
+def validate_without_gt(args, val_loader, disp_net, pose_net, epoch, logger):# output_writers=[]):
     global device
     batch_time = AverageMeter()
     losses = AverageMeter(i=4, precision=4)
-    log_outputs = len(output_writers) > 0
+#     log_outputs = len(output_writers) > 0
 
     # switch to evaluate mode
     disp_net.eval()
@@ -406,16 +421,16 @@ def validate_without_gt(args, val_loader, disp_net, pose_net, epoch, logger, out
             ref_depth = [1 / disp_net(ref_img)]
             ref_depths.append(ref_depth)
 
-        if log_outputs and i < len(output_writers):
-            if epoch == 0:
-                output_writers[i].add_image('val Input', tensor2array(tgt_img[0]), 0)
+#         if log_outputs and i < len(output_writers):
+#             if epoch == 0:
+#                 output_writers[i].add_image('val Input', tensor2array(tgt_img[0]), 0)
 
-            output_writers[i].add_image('val Dispnet Output Normalized',
-                                        tensor2array(1/tgt_depth[0][0], max_value=None, colormap='magma'),
-                                        epoch)
-            output_writers[i].add_image('val Depth Output',
-                                        tensor2array(tgt_depth[0][0], max_value=10),
-                                        epoch)
+#             output_writers[i].add_image('val Dispnet Output Normalized',
+#                                         tensor2array(1/tgt_depth[0][0], max_value=None, colormap='magma'),
+#                                         epoch)
+#             output_writers[i].add_image('val Depth Output',
+#                                         tensor2array(tgt_depth[0][0], max_value=10),
+#                                         epoch)
 
         poses, poses_inv = compute_pose_with_inv(pose_net, tgt_img, ref_imgs)
 
@@ -440,16 +455,17 @@ def validate_without_gt(args, val_loader, disp_net, pose_net, epoch, logger, out
             logger.valid_writer.write('valid: Time {} Loss {}'.format(batch_time, losses))
 
     logger.valid_bar.update(len(val_loader))
-    return losses.avg, ['Total loss', 'Photo loss', 'Smooth loss', 'Consistency loss']
+    
+    return losses.avg, ['val/total_loss', 'val/photometric_error', 'val/disparity_smoothness_loss', 'val/geometry_consistency_loss']
 
 
 @torch.no_grad()
-def validate_with_gt(args, val_loader, disp_net, epoch, logger, output_writers=[]):
+def validate_with_gt(args, val_loader, disp_net, epoch, logger):#, output_writers=[]):
     global device
     batch_time = AverageMeter()
     error_names = ['abs_diff', 'abs_rel', 'sq_rel', 'a1', 'a2', 'a3']
     errors = AverageMeter(i=len(error_names))
-    log_outputs = len(output_writers) > 0
+#     log_outputs = len(output_writers) > 0
 
     # switch to evaluate mode
     disp_net.eval()
@@ -468,25 +484,25 @@ def validate_with_gt(args, val_loader, disp_net, epoch, logger, output_writers=[
         output_disp = disp_net(tgt_img)
         output_depth = 1/output_disp[:, 0]
 
-        if log_outputs and i < len(output_writers):
-            if epoch == 0:
-                output_writers[i].add_image('val Input', tensor2array(tgt_img[0]), 0)
-                depth_to_show = depth[0]
-                output_writers[i].add_image('val target Depth',
-                                            tensor2array(depth_to_show, max_value=10),
-                                            epoch)
-                depth_to_show[depth_to_show == 0] = 1000
-                disp_to_show = (1/depth_to_show).clamp(0, 10)
-                output_writers[i].add_image('val target Disparity Normalized',
-                                            tensor2array(disp_to_show, max_value=None, colormap='magma'),
-                                            epoch)
+#         if log_outputs and i < len(output_writers):
+#             if epoch == 0:
+#                 output_writers[i].add_image('val Input', tensor2array(tgt_img[0]), 0)
+#                 depth_to_show = depth[0]
+#                 output_writers[i].add_image('val target Depth',
+#                                             tensor2array(depth_to_show, max_value=10),
+#                                             epoch)
+#                 depth_to_show[depth_to_show == 0] = 1000
+#                 disp_to_show = (1/depth_to_show).clamp(0, 10)
+#                 output_writers[i].add_image('val target Disparity Normalized',
+#                                             tensor2array(disp_to_show, max_value=None, colormap='magma'),
+#                                             epoch)
 
-            output_writers[i].add_image('val Dispnet Output Normalized',
-                                        tensor2array(output_disp[0], max_value=None, colormap='magma'),
-                                        epoch)
-            output_writers[i].add_image('val Depth Output',
-                                        tensor2array(output_depth[0], max_value=10),
-                                        epoch)
+#             output_writers[i].add_image('val Dispnet Output Normalized',
+#                                         tensor2array(output_disp[0], max_value=None, colormap='magma'),
+#                                         epoch)
+#             output_writers[i].add_image('val Depth Output',
+#                                         tensor2array(output_depth[0], max_value=10),
+#                                         epoch)
 
         if depth.nelement() != output_depth.nelement():
             b, h, w = depth.size()

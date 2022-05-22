@@ -1,5 +1,5 @@
-DATA_ROOT=../../../datasets/
-TRAIN_SET=$DATA_ROOT/kitti_vo_256/
+DATA_ROOT=../..
+TRAIN_SET=$DATA_ROOT/kitti_vo_256
 
 python3 ../train.py $TRAIN_SET \
 --resnet-layers 50 \
@@ -13,4 +13,5 @@ python3 ../train.py $TRAIN_SET \
 --name resnet50_pose_256 \
 --with-coord-conv 1 \
 --conv1-weight-mode random \
---epochs 1
+--epochs 5 \
+--run-id $1 \
