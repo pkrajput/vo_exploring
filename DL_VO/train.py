@@ -555,16 +555,16 @@ class StepLRWithWarmup(torch.optim.lr_scheduler._LRScheduler):
         if (self.last_epoch == 0):
             return [self.warmup_lr_init for _ in self.optimizer.param_groups]
         
-        while (self.last_epoch > 0) & (self.last_epoch < self.warmup_epochs):
+        elif (self.last_epoch > 0) & (self.last_epoch < self.warmup_epochs):
             return [self.warmup_lr_init + self.last_epoch * warmup_incr for _ in self.optimizer.param_groups]
         
-        if self.last_epoch == self.warmup_epochs:
+        elif self.last_epoch == self.warmup_epochs:
             return [self.base_lrs for _ in self.optimizer.param_groups][0]
 
-        if (self.last_epoch > self.warmup_epochs) & ((self.last_epoch - self.warmup_epochs) % self.step_size != 0):
+        elif (self.last_epoch > self.warmup_epochs) & ((self.last_epoch - self.warmup_epochs) % self.step_size != 0):
             return [group['lr'] for group in self.optimizer.param_groups]
 
-        if [group['lr'] * self.gamma for group in self.optimizer.param_groups][0] < self.min_lr:
+        elif [group['lr'] * self.gamma for group in self.optimizer.param_groups][0] < self.min_lr:
             return [self.min_lr for group in self.optimizer.param_groups]
 
         return [group['lr'] * self.gamma for group in self.optimizer.param_groups]
