@@ -92,7 +92,7 @@ def main():
 
     timestamp = datetime.datetime.now().strftime("%m-%d-%H:%M")
     save_path = Path(args.name)
-    args.save_path = 'checkpoints'/save_path/timestamp
+    args.save_path = 'checkpoints_'/save_path/timestamp
     print('=> will save everything to {}'.format(args.save_path))
     args.save_path.makedirs_p()
 
@@ -113,6 +113,8 @@ def main():
     wandb.define_metric('val/disparity_smoothness_loss', summary='min')
     wandb.define_metric('val/geometry_consistency_loss', summary='min')
     wandb.define_metric('val/total_loss', summary='min')
+    
+    wandb.define_metric('learning_rate', summary='last')
 
     training_writer = {}
 
@@ -231,7 +233,7 @@ def main():
             # 1. Since we added 2 channels, we need iniailize additional 
             # weights which correspond to them. Final weight of
             # encoder.conv1 has to be longer by two in dim=1.
-            w_conv1 = weights['encoder.encoder.conv1.weight']
+            w_conv1 = weights['state_dict']['encoder.encoder.conv1.weight']
             w_b, w_c, w_h, w_w = w_conv1.shape
 
             if args.conv1_weight_mode == 'random':
@@ -246,7 +248,7 @@ def main():
                 w_conv1 = nn.init.kaiming_normal_(torch.empty(w_b, w_c+2, w_h, w_w), mode='fan_out', nonlinearity='relu').to(device)
 
             # 2. Replace first weight
-            weights['encoder.encoder.conv1.weight'] = w_conv1
+            weights['state_dict']['encoder.encoder.conv1.weight'] = w_conv1
 
             # 3. Load the new state dict
             pose_net.load_state_dict(weights, strict=False)
@@ -276,6 +278,8 @@ def main():
                 warmup_epochs=args.warmup_epoch, warmup_lr_init=args.warmup_lr,
                 min_lr=args.min_lr
             )
+        else:
+            scheduler = None
 #     with open(args.save_path/args.log_summary, 'w') as csvfile:
 #         writer = csv.writer(csvfile, delimiter='\t')
 #         writer.writerow(['train_loss', 'validation_loss'])
@@ -380,6 +384,9 @@ def train(args, train_loader, disp_net, pose_net, optimizer, scheduler, epoch_si
             train_writer['train/geometry_consistency_loss'] = loss_3.item()
             train_writer['train/total_loss'] = loss.item()
             
+            if scheduler:
+                train_writer['learning_rate'] = scheduler.optimizer.param_groups[0]['lr']
+            
             wandb.log(train_writer)
 
         # record loss and EPE
@@ -390,7 +397,8 @@ def train(args, train_loader, disp_net, pose_net, optimizer, scheduler, epoch_si
         loss.backward()
         optimizer.step()
         # !DL project changes!
-        scheduler.step()
+        if scheduler:
+            scheduler.step()
 
         # measure elapsed time
         batch_time.update(time.time() - end)

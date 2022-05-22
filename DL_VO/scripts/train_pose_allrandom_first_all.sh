@@ -9,20 +9,20 @@ python3 ../train.py $TRAIN_SET \
 --with-mask 1 \
 --with-auto-mask 1 \
 --with-pretrain 0 \
---pretrained-disp //PATH// \
---pretrained-pose //PATH// \
---log-output //PATH?// \
+--pretrained-disp ../checkpoints_pretrained/dispnet_model_best.pth.tar \
+--pretrained-pose ../checkpoints_pretrained/exp_pose_model_best.pth.tar \
 --epochs 100 \
---lr 1e-3 \
+--lr 1e-5 \
 --name coordconv_allrandom_first_all \
 --with-coord-conv 1 \
 --conv1-weight-mode all_random \
 --fine-tune-mode first_then_all \
 --unfreeze-epoch 35 \
---use-scheduler 1 \
---warmup-lr 1e-5 \
---warmup-epoch 70 \
---step-size 10 \
---gamma-lr .1 \
---min-lr 1e-5 \
+--use-scheduler 0 \
+# --warmup-lr 1e-5 \
+# --warmup-epoch 70 \
+# --step-size 10 \
+# --gamma-lr .1 \
+# --min-lr 1e-5 \
 --run-id $1 \
+# --print-freq 10

@@ -1,0 +1,1 @@
+{"train/photometric_error": {"min": 1.2161216735839844}, "train/disparity_smoothness_loss": {"min": 0.027000080794095993}, "train/geometry_consistency_loss": {"min": 0.0737634003162384}, "train/total_loss": {"min": 1.2943576574325562}, "_timestamp": 1653244723, "_runtime": 22, "_step": 49, "_wandb": {"runtime": 408}}

@@ -9,9 +9,8 @@ python3 ../train.py $TRAIN_SET \
 --with-mask 1 \
 --with-auto-mask 1 \
 --with-pretrain 0 \
---pretrained-disp //PATH// \
---pretrained-pose //PATH// \
---log-output //PATH?// \
+--pretrained-disp ../checkpoints_/dispnet_model_best.pth.tar \
+--pretrained-pose ../checkpoints_/exp_pose_model_best.pth.tar \
 --epochs 100 \
 --lr 1e-3 \
 --name coordconv_random_first_all \
