@@ -4,7 +4,7 @@ TRAIN_SET=$DATA_ROOT/kitti_vo_256
 python3 ../train.py $TRAIN_SET \
 --resnet-layers 50 \
 --num-scales 1 \
--b4 -s0.1 -c0.5 --epoch-size 1000 --sequence-length 3 \
+-b4 -s0.1 -c0.5 --epoch-size 50 --sequence-length 3 \
 --with-ssim 1 \
 --with-mask 1 \
 --with-auto-mask 1 \
@@ -18,11 +18,11 @@ python3 ../train.py $TRAIN_SET \
 --conv1-weight-mode all_random \
 --fine-tune-mode first_then_all \
 --unfreeze-epoch 50 \
---use-scheduler 0 \
---run-id $1
-# --warmup-lr 1e-5 \
-# --warmup-epoch 70 \
-# --step-size 10 \
-# --gamma-lr .1 \
-# --min-lr 1e-5 \
+--use-scheduler 1 \
+--run-id $1 \
+--warmup-lr 1e-10 \
+--warmup-epoch 20 \
+--step-size 30 \
+--gamma-lr .1 \
+--min-lr 1e-7
 # --print-freq 10
