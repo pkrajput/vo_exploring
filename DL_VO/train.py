@@ -395,7 +395,7 @@ def train(args, train_loader, disp_net, pose_net, optimizer, scheduler, epoch_si
         # compute gradient and do Adam step
         optimizer.zero_grad()
         loss.backward()
-        optimizer.step()
+        # optimizer.step()
         # !DL project changes!
         if scheduler:
             scheduler.step()
