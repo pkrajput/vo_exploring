@@ -17,7 +17,7 @@ python3 ../train.py $TRAIN_SET \
 --with-coord-conv 1 \
 --conv1-weight-mode all_random \
 --fine-tune-mode first_then_all \
---unfreeze-epoch 35 \
+--unfreeze-epoch 50 \
 --use-scheduler 0 \
 --run-id $1
 # --warmup-lr 1e-5 \
