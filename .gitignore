@@ -1,3 +1,14 @@
+# Custom
+
+DL_VO/scripts/wandb
+DL_VO/models/__pycache__
+DL_VO/datasets/__pycache__
+DL_VO/train_old.py
+kitti_vo_256.zip
+kitti_vo_256/
+DL_VO/checkpoints_pretrained/
+DL_VO/git_logics.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

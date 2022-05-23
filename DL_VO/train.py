@@ -91,15 +91,15 @@ def main():
     args = parser.parse_args()
 
     timestamp = datetime.datetime.now().strftime("%m-%d-%H:%M")
-    save_path = Path(f'checkpoints_/{args.name}/{timestamp}')
+    save_path = Path(f'../checkpoints_/{args.name}/{timestamp}')
     args.save_path = save_path
     print('=> will save everything to {}'.format(args.save_path))
     args.save_path.makedirs_p()
 
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
-    cudnn.deterministic = True
-    cudnn.benchmark = True
+#     torch.manual_seed(args.seed)
+#     np.random.seed(args.seed)
+#     cudnn.deterministic = True
+#     cudnn.benchmark = True
 
     wandb.init(project='vo_exploring', name=args.run_id)
 
