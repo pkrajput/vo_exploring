@@ -395,10 +395,14 @@ def train(args, train_loader, disp_net, pose_net, optimizer, scheduler, epoch_si
         # compute gradient and do Adam step
         optimizer.zero_grad()
         loss.backward()
-        # optimizer.step()
+        
+        print(scheduler.last_epoch)
+        
         # !DL project changes!
         if scheduler:
-            scheduler.step()
+            scheduler.step()            
+        else:
+            optimizer.step()
 
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -551,6 +555,7 @@ class StepLRWithWarmup(torch.optim.lr_scheduler._LRScheduler):
         self.warmup_epochs = warmup_epochs
         self.warmup_lr_init = warmup_lr_init
         self.min_lr = min_lr
+        self.last_epoch = 0
 
         super().__init__(optimizer, last_epoch, verbose)
 
