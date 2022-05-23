@@ -26,5 +26,5 @@ python3 ../train.py $TRAIN_SET \
 --warmup-epoch $(( 20 * $EPOCH_SIZE )) \
 --step-size $(( 30 * $EPOCH_SIZE )) \
 --gamma-lr .1 \
---min-lr 1e-7 \
+--min-lr 1e-10 \
 --print-freq 1
