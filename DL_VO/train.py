@@ -301,7 +301,7 @@ def main():
 
         # train for one epoch
         logger.reset_train_bar()
-        train_loss = train(args, train_loader, disp_net, pose_net, optimizer, scheduler, args.epoch_size, logger, training_writer)
+        train_loss = train(args, train_loader, disp_net, pose_net, optimizer, args.epoch_size, logger, training_writer)
         logger.train_writer.write(' * Avg Loss : {:.3f}'.format(train_loss))
 
         # evaluate on validation set
@@ -315,8 +315,13 @@ def main():
 
         for error, name in zip(errors, error_names):
             training_writer[name] = error
-            
+
         wandb.log(train_writer)
+
+        if args.use_scheduler:
+            print(scheduler.last_epoch)
+            scheduler.step()
+
 
         # Up to you to chose the most relevant error to measure your model's performance, careful some measures are to maximize (such as a1,a2,a3)
         decisive_error = errors[1]
@@ -342,7 +347,7 @@ def main():
     logger.epoch_bar.finish()
 
 
-def train(args, train_loader, disp_net, pose_net, optimizer, scheduler, epoch_size, logger, train_writer):
+def train(args, train_loader, disp_net, pose_net, optimizer, epoch_size, logger, train_writer):
     global n_iter, device
     batch_time = AverageMeter()
     data_time = AverageMeter()
@@ -395,14 +400,7 @@ def train(args, train_loader, disp_net, pose_net, optimizer, scheduler, epoch_si
         # compute gradient and do Adam step
         optimizer.zero_grad()
         loss.backward()
-        
-        print(scheduler.last_epoch)
-        
-        # !DL project changes!
-        if scheduler:
-            scheduler.step()            
-        else:
-            optimizer.step()
+        optimizer.step()
 
         # measure elapsed time
         batch_time.update(time.time() - end)
