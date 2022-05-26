@@ -1,5 +1,6 @@
 # Custom
 
+DL_VO/checkpoints_
 DL_VO/scripts/wandb
 DL_VO/models/__pycache__
 DL_VO/datasets/__pycache__

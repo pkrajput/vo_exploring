@@ -1,7 +1,7 @@
 DATA_ROOT=../..
 TRAIN_SET=$DATA_ROOT/kitti_vo_256
 
-EPOCH_SIZE=50
+EPOCH_SIZE=1000
 
 python3 ../train.py $TRAIN_SET \
 --resnet-layers 50 \
@@ -13,17 +13,19 @@ python3 ../train.py $TRAIN_SET \
 --with-pretrain 0 \
 --pretrained-disp ../checkpoints_pretrained/dispnet_model_best.pth.tar \
 --pretrained-pose ../checkpoints_pretrained/exp_pose_model_best.pth.tar \
---epochs 100 \
+--epochs 50 \
 --lr 1e-5 \
---name coordconv_allrandom_whole \
+--name coordconv_zeros_first_all \
 --with-coord-conv 1 \
---conv1-weight-mode all_random \
---fine-tune-mode whole \
+--conv1-weight-mode zeros \
+--fine-tune-mode first_then_all \
+--unfreeze-epoch 15 \
 --use-scheduler 1 \
 --run-id $1 \
---warmup-lr 1e-10 \
---warmup-epoch $(( 20 * $EPOCH_SIZE )) \
---step-size $(( 30 * $EPOCH_SIZE )) \
+--warmup-lr 1e-8 \
+--warmup-epoch 1 \
+--step-size 30 \
 --gamma-lr .1 \
 --min-lr 1e-10 \
---print-freq 1
+--print-freq 50 \
+--epoch-size-val 10

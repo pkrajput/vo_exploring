@@ -1,4 +1,4 @@
-DATASET_DIR=../kitti_vo_256
+DATASET_DIR=../kitti_vo_256/
 OUTPUT_DIR=vo_results/
 
 if [ -d $OUTPUT_DIR ] 
