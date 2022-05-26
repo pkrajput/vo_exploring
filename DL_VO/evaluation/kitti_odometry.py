@@ -598,6 +598,7 @@ class KittiEvalOdom():
             seq_rpe_rot.append(rpe_rot)
             print("RPE (m): ", rpe_trans)
             print("RPE (deg): ", rpe_rot * 180 / np.pi)
+            print()
 
             # Plotting
             self.plot_trajectory(poses_gt, poses_result, i)
@@ -612,6 +613,7 @@ class KittiEvalOdom():
         for i in range(len(ave_t_errs)):
             print("{0:.2f}".format(ave_t_errs[i]*100))
             print("{0:.2f}".format(ave_r_errs[i]/np.pi*180*100))
-            # print("{0:.2f}".format(seq_ate[i]))
-            # print("{0:.3f}".format(seq_rpe_trans[i]))
-            # print("{0:.3f}".format(seq_rpe_rot[i] * 180 / np.pi))
+            print("{0:.2f}".format(seq_ate[i]))
+            print("{0:.3f}".format(seq_rpe_trans[i]))
+            print("{0:.3f}".format(seq_rpe_rot[i] * 180 / np.pi))
+            print()
