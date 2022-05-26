@@ -18,7 +18,8 @@ python3 ../train.py $TRAIN_SET \
 --name coordconv_allrandom_first_all \
 --with-coord-conv 1 \
 --conv1-weight-mode all_random \
---fine-tune-mode whole \
+--fine-tune-mode first_then_all \
+--unfreeze-epoch 15 \
 --use-scheduler 1 \
 --run-id $1 \
 --warmup-lr 1e-8 \

@@ -15,9 +15,9 @@ python3 ../train.py $TRAIN_SET \
 --pretrained-pose ../checkpoints_pretrained/exp_pose_model_best.pth.tar \
 --epochs 50 \
 --lr 1e-5 \
---name coordconv_allrandom_first_all \
+--name coordconv_zeros_whole \
 --with-coord-conv 1 \
---conv1-weight-mode all_random \
+--conv1-weight-mode zeros \
 --fine-tune-mode whole \
 --use-scheduler 1 \
 --run-id $1 \

@@ -15,10 +15,11 @@ python3 ../train.py $TRAIN_SET \
 --pretrained-pose ../checkpoints_pretrained/exp_pose_model_best.pth.tar \
 --epochs 50 \
 --lr 1e-5 \
---name coordconv_allrandom_first_all \
+--name coordconv_random_first_all \
 --with-coord-conv 1 \
---conv1-weight-mode all_random \
---fine-tune-mode whole \
+--conv1-weight-mode random \
+--fine-tune-mode first_then_all \
+--unfreeze-epoch 15 \
 --use-scheduler 1 \
 --run-id $1 \
 --warmup-lr 1e-8 \
