@@ -66,5 +66,5 @@ pip3 install evo --upgrade --no-binary evo
 
 ### Run
 
-You can run metrics using instructions from original repository or use python script `run_metrics.py`.
+You can run metrics using instructions from original repository, sequences are stored in `sequences` folder.
 
