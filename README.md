@@ -23,7 +23,7 @@ cd ORB_SLAM2
 
 ### KITTI Dataset
 
-1. Download the dataset from http://www.cvlibs.net/datasets/kitti/eval_odometry.php
+1. Download the dataset (sequences 08, 09, 10) from [Google Drive](https://drive.google.com/drive/folders/1y8xLEhqDFYCBu55qq1HT-L1z_Boh9Ua2?usp=sharing) or [full dataset](http://www.cvlibs.net/datasets/kitti/eval_odometry.php)
 2. Execute the following command. Change ``` KITTIX.yaml``` by KITTI00-02.yaml, KITTI03.yaml or KITTI04-12.yaml for sequence 0 to 2, 3, and 4 to 12 respectively. Change ``` PATH_TO_DATASET_FOLDER``` to the uncompressed dataset folder. Change ```SEQUENCE_NUMBER``` to 00, 01, 02,.., 11.
 
 ``` ./Examples/Monocular/mono_kitti Vocabulary/ORBvoc.txt Examples/Monocular/KITTIX.yaml PATH_TO_DATASET_FOLDER/dataset/sequences/SEQUENCE_NUMBER ```
