@@ -1,0 +1,1 @@
+# Transparen object masking
