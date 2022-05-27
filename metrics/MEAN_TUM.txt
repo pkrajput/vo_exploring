@@ -1,0 +1,151 @@
+__________________________________________________________________________________
+
+RPY
+__________________________________________________________________________________
+
+GROUND TRUTH WITH DEBLUR 
+
+APE_translation_part 
+MEAN 0.018767
+
+RPE_translation_part 
+MEAN 0.017813
+
+RPE_rot_ang_in_deg
+MEAN 1.127863
+
+GROUND TRUTH WITH DEBLUR SEGMENTATION
+
+APE_translation_part 
+MEAN 0.018613
+
+RPE_translation_part 
+MEAN 0.065011
+
+RPE_rot_ang_in_deg
+MEAN 2.190500
+
+GROUND TRUTH WITH ORIGINAL 
+
+APE_translation_part 
+MEAN 0.063886
+
+RPE_translation_part 
+MEAN 0.018725
+
+RPE_rot_ang_in_deg
+MEAN 1.444773
+
+GROUND TRUTH WITH ORIGINAL WITH SEGMENTATION
+
+APE_translation_part 
+MEAN 0.024508
+
+RPE_translation_part 
+MEAN 0.013729
+
+RPE_rot_ang_in_deg
+MEAN 1.280872
+
+
+
+__________________________________________________________________________________
+
+XYZ
+__________________________________________________________________________________
+
+GROUND TRUTH WITH DEBLUR
+
+APE_translation_part 
+MEAN 0.008820
+
+RPE_translation_part 
+MEAN 0.013572
+
+RPE_rot_ang_in_deg
+MEAN 0.696928
+
+GROUND TRUTH WITH DEBLUR SEGMENTATION
+
+APE_translation_part 
+MEAN 0.007662
+
+RPE_translation_part 
+MEAN 0.012044
+
+RPE_rot_ang_in_deg
+MEAN 0.710171
+
+GROUND TRUTH WITH ORIGINAL
+
+APE_translation_part 
+MEAN 0.005638
+
+RPE_translation_part 
+MEAN 0.008801
+
+RPE_rot_ang_in_deg
+MEAN 0.544655
+
+GROUND TRUTH WITH ORIGINAL WITH SEGMENTATION
+
+APE_translation_part 
+MEAN 0.006539
+
+RPE_translation_part 
+MEAN 0.010742
+
+RPE_rot_ang_in_deg
+MEAN 0.647860
+
+__________________________________________________________________________________
+
+LONG
+__________________________________________________________________________________
+
+GROUND TRUTH WITH DEBLUR
+
+APE_translation_part 
+MEAN 0.034174
+
+RPE_translation_part 
+MEAN 0.007442
+
+RPE_rot_ang_in_deg
+MEAN 0.336747
+
+
+GROUND TRUTH WITH DEBLUR SEGMENTATION
+
+APE_translation_part 
+MEAN 0.025793
+
+RPE_translation_part 
+MEAN 0.006862
+
+RPE_rot_ang_in_deg
+MEAN 0.336524
+
+
+GROUND TRUTH WITH ORIGINAL
+
+APE_translation_part 
+MEAN 0.031001
+
+RPE_translation_part 
+MEAN 0.007968
+
+RPE_rot_ang_in_deg
+MEAN 0.366255
+
+
+GROUND TRUTH WITH ORIGINAL SEGMENTATION
+
+APE_translation_part 
+MEAN 0.025041
+
+RPE_translation_part 
+MEAN 0.007128
+
+RPE_rot_ang_in_deg
+MEAN 0.360615
