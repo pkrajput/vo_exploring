@@ -1,0 +1,95 @@
+__________________________________________________________________________________
+
+SEQ08
+__________________________________________________________________________________
+
+GROUND TRUTH WITH DEBLUR 
+
+APE_translation_part 
+MEAN 38.701056
+
+RPE_translation_part 
+MEAN 0.487801
+
+RPE_rot_ang_in_deg
+MEAN 0.053924
+
+GROUND TRUTH WITH DEBLUR SEGMENTATION
+
+APE_translation_part 
+MEAN 0.363618
+
+RPE_translation_part 
+MEAN 0.499967
+
+RPE_rot_ang_in_deg
+MEAN 0.047745
+
+GROUND TRUTH WITH ORIGINAL 
+
+APE_translation_part 
+MEAN 37.757439
+
+RPE_translation_part 
+MEAN 0.467190
+
+RPE_rot_ang_in_deg
+MEAN 0.053345
+
+
+__________________________________________________________________________________
+
+SEQ09
+__________________________________________________________________________________
+
+GROUND TRUTH WITH DEBLUR
+
+APE_translation_part 
+MEAN 42.403437
+
+RPE_translation_part 
+MEAN 0.334358
+
+RPE_rot_ang_in_deg
+MEAN 0.053853
+
+
+GROUND TRUTH WITH ORIGINAL
+
+APE_translation_part 
+MEAN 31.126846
+
+RPE_translation_part 
+MEAN 0.635913
+
+RPE_rot_ang_in_deg
+MEAN 0.053478
+
+__________________________________________________________________________________
+
+SEQ10
+__________________________________________________________________________________
+
+GROUND TRUTH WITH DEBLUR
+
+APE_translation_part 
+MEAN 5.366431
+
+RPE_translation_part 
+MEAN 0.095038
+
+RPE_rot_ang_in_deg
+MEAN 0.072026
+
+
+GROUND TRUTH WITH ORIGINAL
+
+APE_translation_part 
+MEAN 3.502739
+
+RPE_translation_part 
+MEAN 0.060417
+
+RPE_rot_ang_in_deg
+MEAN 0.059422
+
