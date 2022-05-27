@@ -40,6 +40,9 @@ Our codebase for visual odemetry has following structure:
   - [training directory](DL_VO/scripts) contains all scripts that we used for fine-tuning our PoseNet with CoordConv.
   - [evaluation directory](DL_VO/evaluation) contains all script which test our checkpoints against ground truth poses, saved in [correspondinf directory](DL_VO/evaluation/gt_poses).
 
+2. Execution
+  - Simply upload [this notebook](run_inference.ipynb) to the Google colab and follow steps provided there.
+
 # SRN-Deblur
 
 Download pretrained models through: ```download_model.sh``` inside ```checkpoints/```.
