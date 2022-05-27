@@ -26,7 +26,7 @@ cd ORB_SLAM2
 
 ``` ./Examples/Monocular/mono_kitti Vocabulary/ORBvoc.txt Examples/Monocular/KITTIX.yaml PATH_TO_DATASET_FOLDER/dataset/sequences/SEQUENCE_NUMBER ```
 
-# SRN_Deblur
+# SRN-Deblur
 
 Download pretrained models through: ```download_model.sh``` inside ```checkpoints/```.
 
