@@ -1,4 +1,4 @@
-DATASET_DIR=../../kitti_odom_test/sequences/
+DATASET_DIR=../../../kitti_odom_test/sequences/
 OUTPUT_DIR=vo_results/
 
 if [ -d $OUTPUT_DIR ] 
@@ -8,7 +8,7 @@ else
     mkdir $OUTPUT_DIR
 fi
 
-POSE_NET=../checkpoints_/coordconv_allrandom_whole/05-23-20:03/exp_pose_model_best.pth.tar
+POSE_NET=../checkpoints_/$1/exp_pose_model_best.pth.tar
 
 python3 test_vo.py \
 --img-height 256 --img-width 832 \
