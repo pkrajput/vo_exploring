@@ -1,3 +1,9 @@
 [submodule "evo"]
 	path = evo
 	url = https://github.com/MichaelGrupp/evo
+[submodule "ORB_SLAM2"]
+	path = ORB_SLAM2
+	url = https://github.com/raulmur/ORB_SLAM2
+[submodule "SRN-Deblur"]
+	path = SRN-Deblur
+	url = https://github.com/jiangsutx/SRN-Deblur
