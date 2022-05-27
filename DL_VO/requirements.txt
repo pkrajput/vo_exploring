@@ -1,9 +1,15 @@
-torch >= 1.5.1
-imageio
-matplotlib
-scipy
-argparse
-tensorboardX
-blessings
-progressbar2
-path
+blessings==1.7
+imageio==2.15.0
+matplotlib==3.3.4
+numpy==1.19.5
+opencv_python==4.5.5.64
+path.py==12.5.0
+pebble==4.6.3
+Pillow==9.1.1
+progressbar33==2.4
+scikit_image==0.17.2
+scipy==1.5.4
+skimage==0.0
+torch==1.10.1
+torchvision==0.11.2
+tqdm==4.64.0
