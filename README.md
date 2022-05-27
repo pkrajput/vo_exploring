@@ -2,6 +2,12 @@
 
 Deep Learning 2022 course final project.
 
+Vladislav Trifonov, Hekmat Taherinejad, Prateek Rajput, Vladimir Chernyy, Anna Akhmatova, Timur Bayburin
+
+# PoseNet for Visual Odometry
+
+[training directory](DL_VO/scripts)
+
 # ORB_SLAM2
 Build ORB-SLAM2 with patches
 
