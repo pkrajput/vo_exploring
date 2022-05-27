@@ -1,5 +1,7 @@
 # vo_exploring
 
+Deep Learning 2022 course final project.
+
 # ORB_SLAM2
 Build ORB-SLAM2 with patches
 
@@ -36,4 +38,18 @@ cd vo_exploring/SRN-Deblur
 python run_model.py --input_path=<PATH_TO_DATASET> --output_path=<PATH_TO_OUTPUT_FOLDER> --gpu=<GPU_ID>
 ```
 
+# Metrics
+
+Based on [evo - Python package for the evaluation of odometry and SLAM](https://github.com/MichaelGrupp/evo).
+
+### Installation
+
+Make sure you have `evo` folder from repository, it contains supportive scripts. Also install evo using pip:
+```
+pip3 install evo --upgrade --no-binary evo
+```
+
+### Run
+
+You can run metrics using instructions from original repository or use python script `run_metrics.py`.
 
