@@ -41,7 +41,7 @@ Our codebase for visual odemetry has following structure:
   - [evaluation directory](DL_VO/evaluation) contains all script which test our checkpoints against ground truth poses, saved in [corresponding directory](DL_VO/evaluation/gt_poses).
 
 2. Execution
-  - Simply upload [this notebook](run_inference.ipynb) to the Google colab and follow steps provided there.
+  - Simply upload [this notebook](DL_VO/run_inference.ipynb) to the Google colab and follow steps provided there.
 
 # SRN-Deblur
 
