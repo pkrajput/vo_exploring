@@ -1,4 +1,5 @@
 # vo_exploring
+Paper Link: https://drive.google.com/file/d/106B8Qr4Zbf20hP2hwfwPAP-EPJnWlCYG/view?usp=share_link
 
 Deep Learning 2022 course final project.
 
